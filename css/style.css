@@ -1,0 +1,89 @@
+*{
+    font-family: sans-serif;
+}
+
+body,html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+header {
+    margin: 0px;
+    background-color: #d8d5d5;
+    color: rgb(3, 46, 46);
+    padding: 5px;
+    text-align: center;
+}
+
+header p{
+    margin-top: -15px;
+}
+
+main {
+    margin: 15px;
+}
+
+#controls{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.filter-todo {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-todo .filter-group label {
+    color: rgb(0, 18, 51);
+    font-weight: bold;
+}
+
+.filter-group input, .filter-group select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    color: gray;
+    border-radius: 5px;
+}
+
+
+.actions-btns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.btn-action{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-action:hover{
+    cursor: pointer;
+}
+.icon-small{
+    font-size: 16px;
+}
+
+.icon-medium{
+    font-size: 20px;
+}
+
+.icon-large{
+    font-size: 24px;
+}
+
+
+@media screen and (max-width: 720px) {
+    #controls {
+        flex-direction: column;
+    }
+    
+    .actions-btns {
+        margin-top: 6px;
+        justify-content: left;
+    }
+}
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo-list sederhana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Simple To-Do list</h1>
+            <p>Created By Fathur</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- bagian filter dan  -->
+        <section id="controls">
+            <!-- filter berdasarkan tanggal -->
+             <div class="filter-todo">
+                 <div class="filter-group">
+                     <label for="date-filter">Filter by Date:</label>
+                     <input type="date" id="date-filter"/>
+                 </div>
+     
+                 <!-- filter berdasarkan status -->
+                  <div class="filter-group">
+                     <label for="status-filter">Filter by Status:</label>
+                     <select id="status-filter">
+                         <option value="all">All</option>
+                         <option value="in progress">In Progress</option>
+                         <option value="completed">Compelted</option>
+                         <option value="expired">Expired</option>
+                     </select>
+                  </div>
+             </div>
+
+             <!-- tombol dan aksi -->
+              <div class="actions-btns">
+                <button id="add-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">add</span>Add</button>
+                <button id="edit-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">edit</span>Edit</button>
+                <button id="remove-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">delete</span>Delate</button>
+              </div>
+        </section>
+        <!-- bagian daftar todo -->
+    </main>
+</body>
+</html>
