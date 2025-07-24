@@ -41,7 +41,7 @@
               <div class="actions-btns">
                 <button id="add-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">add</span>Add</button>
                 <button id="edit-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">edit</span>Edit</button>
-                <button id="remove-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">delete</span>Delate</button>
+                <button id="remove-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">delete</span>Delete</button>
               </div>
         </section>
 
@@ -53,9 +53,10 @@
                     <h2>Add a New Task</h2>
                 </div>
                 <div class="modal-content">
-                    <form>
-                        <input type="text" id="task" class="modal-input" placeholder="Masukkan Tugas Baru" required />
+                    <form id="todo-form">
+                        <input type="text" id="task" class="modal-input" placeholder="Enter a new task" required />
                         <input type="date" id="due-date" class="modal-input" required />
+                        <input type="time" id="due-time" class="modal-input" required />
                         <button type="submit" id="submit-btn" class="modal-btn">Submit</button>
                         <button type="button" id="cancel-btn" class="modal-btn">Cancel</button>
                     </form>
@@ -65,41 +66,19 @@
 
         <!-- bagian daftar todo -->
         <section>
-            <div class="todo-list">
+            <div id="todo-list" class="todo-list">
                 <h2>Task List</h2>
                 <!-- pesan jika tugas tidak ada -->
                 <p class="no-assignments hidden">No Assignments</p>
+                <div class="task open">
+                    <div class="task-main">
+                        <p class="task-text">Halo dari dunia ini</p>
+                    </div>
 
-                <div class="task">
-                    <div class="task-main">
-                        <p class="task-text">Simple todo list</p>
-                    </div>
-                    
                     <div class="task-detail">
-                        <p class="due-date">Due Date: 2025-07-26</p>
-                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
-                    </div>
-                </div>
-
-                <div class="task">
-                    <div class="task-main">
-                        <p class="task-text">Simple todo list</p>
-                    </div>
-                    
-                    <div class="task-detail">
-                        <p class="due-date">Due Date: 2025-07-26</p>
-                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
-                    </div>
-                </div>
-                
-                <div class="task">
-                    <div class="task-main">
-                        <p class="task-text">Simple todo listt</p>
-                    </div>
-                    
-                    <div class="task-detail">
-                        <p class="due-date">Due Date: 2025-07-26</p>
-                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
+                        <p class="due-date">Due Date: 27/07/2025</p>
+                        <p class="due-date">Due Time: 14:10</p>
+                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Complete</button>
                     </div>
                 </div>
             </div>

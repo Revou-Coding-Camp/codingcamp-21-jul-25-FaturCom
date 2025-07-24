@@ -5,7 +5,7 @@
 body,html {
     margin: 0;
     padding: 0;
-    height: 100vh;
+    height: 100%;
     box-sizing: border-box;
 }
 
@@ -28,6 +28,7 @@ main {
 #controls{
     display: flex;
     justify-content: space-between;
+    margin-left: 6px;
     gap: 10px;
 }
 
@@ -74,6 +75,8 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
+    z-index: 1;
 }
 
 .modal-view {
@@ -93,7 +96,7 @@ main {
     box-sizing: border-box;
 }
 
-.modal-btn, .mark-complete{
+.modal-btn, .mark-complete, .done-task-btn, .expired-task-btn {
     color: white;
     margin: 10px 0;
     padding: 10px 20px;
@@ -112,7 +115,7 @@ main {
     background-color: #4ed853; /* Green */
 }
 
-.mark-complete{
+.mark-complete, .done-task-btn, .expired-task-btn{
     display: flex;
     justify-content: center;
     align-items: center ;
@@ -141,7 +144,6 @@ main {
 .task {
     background-color: #729aee;
     color: white;
-    /* margin: 5px; */
     padding: 6px;
     border-radius: 5px;
     transition: 300ms;
@@ -150,18 +152,18 @@ main {
     display: flex;
     flex-direction: column;
     max-height: 60px;
+    user-select: none;
     overflow: hidden;
     transition: max-height 0.4s ease-in-out, padding 0.3s;
 }
 
-.task:active {
+.task:hover {
     cursor: pointer;
     background-color: #5a7dcf;
 }
 
-.task.open {
-    max-height: 150px;
-    padding-bottom: 10px;
+.task:active {
+    cursor: pointer;
     background-color: #5a7dcf;
 }
 
@@ -174,6 +176,46 @@ main {
 
 .hidden {
     display: none;
+}
+
+.done-task {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+
+.open {
+    max-height: 180px;
+    padding-bottom: 10px;
+    background-color: #5a7dcf;
+}
+
+.done-task-bg{
+    background-color: gray;
+}
+
+.done-task-bg:hover {
+    background-color: gray;
+    opacity: 0.7;
+}
+
+.done-task-btn{
+    background-color: white;
+    color: gray;
+}
+
+.expired-task-bg{
+    background-color: #f44336; /* Red */
+}
+
+.expired-task-bg:hover{
+    background-color: #f44336; /* Red */
+    opacity: 0.7;
+}
+
+.expired-task-btn{
+    background-color: #f44336; /* Red */
+    outline: white solid 1px;
 }
 
 .icon-small{
