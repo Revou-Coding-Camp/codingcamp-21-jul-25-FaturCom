@@ -18,13 +18,7 @@
     <main>
         <!-- bagian filter dan  -->
         <section id="controls">
-            <!-- filter berdasarkan tanggal -->
              <div class="filter-todo">
-                 <div class="filter-group">
-                     <label for="date-filter">Filter by Date:</label>
-                     <input type="date" id="date-filter"/>
-                 </div>
-     
                  <!-- filter berdasarkan status -->
                   <div class="filter-group">
                      <label for="status-filter">Filter by Status:</label>
@@ -53,6 +47,14 @@
                     <h2>Add a New Task</h2>
                 </div>
                 <div class="modal-content">
+                    <div class="modal-error hidden">
+                        <ul class="error-list">
+                            <!-- pesan error akan ditampilkan di sini -->
+                            <li class="error-item hidden" id="error-task-input">Input text must be filled in</li>
+                            <li class="error-item hidden" id="error-duedatetime-input">Please fill in the due date time correctly</li>
+                            <li class="error-item hidden" id="error-task-duedatetime">Due date and time must be in the future!</li>
+                        </ul>
+                    </div>
                     <form id="todo-form">
                         <input type="text" id="task" class="modal-input" placeholder="Enter a new task" required />
                         <input type="date" id="due-date" class="modal-input" required />
@@ -68,19 +70,9 @@
         <section>
             <div id="todo-list" class="todo-list">
                 <h2>Task List</h2>
-                <!-- pesan jika tugas tidak ada -->
-                <p class="no-assignments hidden">No Assignments</p>
-                <div class="task open">
-                    <div class="task-main">
-                        <p class="task-text">Halo dari dunia ini</p>
-                    </div>
-
-                    <div class="task-detail">
-                        <p class="due-date">Due Date: 27/07/2025</p>
-                        <p class="due-date">Due Time: 14:10</p>
-                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Complete</button>
-                    </div>
-                </div>
+                <!-- pesan -->
+                <p class="no-assignments hidden" id="message">No Assignments</p>
+                <p class="warning-msg hidden" id="warning-msg">This task cannot be edited because it is already completed or expired.</p>
             </div>
         </section>
     </main>
