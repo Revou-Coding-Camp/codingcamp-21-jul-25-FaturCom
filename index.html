@@ -44,7 +44,67 @@
                 <button id="remove-todo" class="btn-action"><span class="material-symbols-outlined icon-medium">delete</span>Delate</button>
               </div>
         </section>
+
+        <!-- modal view -->
+
+        <section class="modal-container hidden" id="modal-container">
+            <div class="modal-view">
+                <div class="modal-header">
+                    <h2>Add a New Task</h2>
+                </div>
+                <div class="modal-content">
+                    <form>
+                        <input type="text" id="task" class="modal-input" placeholder="Masukkan Tugas Baru" required />
+                        <input type="date" id="due-date" class="modal-input" required />
+                        <button type="submit" id="submit-btn" class="modal-btn">Submit</button>
+                        <button type="button" id="cancel-btn" class="modal-btn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
         <!-- bagian daftar todo -->
+        <section>
+            <div class="todo-list">
+                <h2>Task List</h2>
+                <!-- pesan jika tugas tidak ada -->
+                <p class="no-assignments hidden">No Assignments</p>
+
+                <div class="task">
+                    <div class="task-main">
+                        <p class="task-text">Simple todo list</p>
+                    </div>
+                    
+                    <div class="task-detail">
+                        <p class="due-date">Due Date: 2025-07-26</p>
+                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
+                    </div>
+                </div>
+
+                <div class="task">
+                    <div class="task-main">
+                        <p class="task-text">Simple todo list</p>
+                    </div>
+                    
+                    <div class="task-detail">
+                        <p class="due-date">Due Date: 2025-07-26</p>
+                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
+                    </div>
+                </div>
+                
+                <div class="task">
+                    <div class="task-main">
+                        <p class="task-text">Simple todo listt</p>
+                    </div>
+                    
+                    <div class="task-detail">
+                        <p class="due-date">Due Date: 2025-07-26</p>
+                        <button class="mark-complete"><span class="material-symbols-outlined icon-medium">check</span>Selesai</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+    <script src="js/script.js"></script>
 </body>
 </html>
