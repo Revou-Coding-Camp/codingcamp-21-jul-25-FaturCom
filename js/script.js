@@ -1,10 +1,11 @@
 const dataBase = localStorage.getItem('todoList') ? JSON.parse(localStorage.getItem('todoList')) : [];
-const typeActions = localStorage.getItem('typeActions') ? JSON.parse(localStorage.getItem('typeActions')) : {typeActions: 'add'};
+let typeActions = localStorage.getItem('typeActions') ? JSON.parse(localStorage.getItem('typeActions')) : { typeActions: 'add' };
 
 let editModeListeners = [];
 let deleteModeListeners = [];
 let activeMode = null;
 
+// Fungsi bantu untuk menghapus event listener mode edit
 const removeEditModeListeners = () => {
     editModeListeners.forEach(listener => {
         listener.task.removeEventListener('click', listener.handler);
@@ -12,150 +13,201 @@ const removeEditModeListeners = () => {
     editModeListeners = [];
 };
 
+// Fungsi bantu untuk menghapus event listener mode delete
 const removeDeleteModeListener = () => {
     deleteModeListeners.forEach(listener => {
-        listener.task.removeEventListener('click', listener.handler)
-    })
+        listener.task.removeEventListener('click', listener.handler);
+    });
     deleteModeListeners = [];
 };
 
-// fungsi untuk render/menampilkan task
+// Fungsiuntuk membersihkan input pada modal
+const clearModalInputs = () => {
+    document.getElementById('task').value = '';
+    document.getElementById('due-date').value = '';
+    document.getElementById('due-time').value = '';
+};
+
+// Render task
 const renderTask = (taskText, dueDate, dueTime, status, index) => {
     const dueDateTime = new Date(`${dueDate}T${dueTime}`);
     const currentDateTime = new Date();
 
+    let displayStatus = status;
     if (dueDateTime < currentDateTime && status !== 'complete') {
-        dataBase[index].status = 'expired';
-        localStorage.setItem('todoList', JSON.stringify(dataBase));
+        displayStatus = 'expired';
     }
 
-    const task = `<div class="task ${(status == 'complete' ? 'done-task-bg' : status === 'expired' ? 'expired-task-bg' : '')}" data-index="${index}" data-status="${status}"> 
-                    <div class="task-main">
-                        <p class="task-text ${(status === 'complete' ? 'done-task' : '')}" data-taskText="${taskText}">${taskText}</p>
-                    </div>
-                    <div class="task-detail">
-                        <p class="due-date" data-dueDate="${dueDate}">Due Date: ${dueDate}</p>
-                        <p class="due-date due-time" data-dueTime="${dueTime}">Due Time: ${dueTime}</p>
-                        <button class="${(status == 'complete' ? 'done-task-btn' : status === 'expired' ? 'expired-task-btn' : 'mark-complete')}">
-                            <span class="material-symbols-outlined icon-medium">
-                                ${(status === 'expired' ? 'delete' : 'check')}
-                            </span>
-                            ${(status == 'complete' ? 'Complete' : status === 'expired' ? 'Delete' : 'Complete')}
-                        </button>
-                    </div>
-                </div>`;
+    const taskElement = document.createElement('div');
+    taskElement.className = `task ${displayStatus === 'complete' ? 'done-task-bg' : displayStatus === 'expired' ? 'expired-task-bg' : ''}`;
+    taskElement.dataset.index = index;
+    taskElement.dataset.status = displayStatus;
 
-    const todoList = document.getElementById('todo-list');
-    todoList.innerHTML += task;
+    taskElement.innerHTML = `
+        <div class="task-main">
+            <p class="task-text ${displayStatus === 'complete' ? 'done-task' : ''}" data-taskText="${taskText}">${taskText}</p>
+        </div>
+        <div class="task-detail">
+            <p class="due-date" data-dueDate="${dueDate}">Due Date: ${dueDate}</p>
+            <p class="due-date due-time" data-dueTime="${dueTime}">Due Time: ${dueTime}</p>
+            <p class="due-date">Status: ${displayStatus}</p>
+            <button class="${displayStatus === 'complete' ? 'done-task-btn' : displayStatus === 'expired' ? 'expired-task-btn' : 'mark-complete'}">
+                <span class="material-symbols-outlined icon-medium">
+                    ${displayStatus === 'expired' ? 'delete' : 'check'}
+                </span>
+                ${displayStatus === 'complete' ? 'Complete' : displayStatus === 'expired' ? 'Delete' : 'Complete'}
+            </button>
+        </div>
+    `;
 
-    // Cek dan tampilkan pesan jika tidak ada task
-    const noAssignmentMsg = document.getElementById('message');
-    if (dataBase.length === 0) {
-        noAssignmentMsg.classList.remove('hidden');
-        noAssignmentMsg.classList.add('no-assignments');
-        noAssignmentMsg.textContent = 'No Assignments';
-    } else {
-        noAssignmentMsg.classList.add('hidden');
-    }
+    document.getElementById('todo-list').appendChild(taskElement);
+    return taskElement;
 };
 
-// fungsi untuk melihat detail task
+// Filter task berdasarkan status
+const applyStatusFilter = (status) => {
+    const filteredTasks = status === 'all' 
+        ? dataBase 
+        : status === 'expired'
+        ? dataBase.filter(task => {
+            const dueDateTime = new Date(`${task.dueDate}T${task.dueTime}`);
+            return task.status !== 'complete' && dueDateTime < new Date();
+          })
+        : status === 'in progress'
+        ? dataBase.filter(task => {
+            const dueDateTime = new Date(`${task.dueDate}T${task.dueTime}`);
+            return task.status === 'in progress' && dueDateTime >= new Date();
+          })
+        : dataBase.filter(task => task.status === (status === 'completed' ? 'complete' : status));
+
+    document.getElementById('todo-list').innerHTML = '';
+
+    if (filteredTasks.length === 0) {
+        const message = document.getElementById('message');
+        message.className = 'no-assignments';
+        message.classList.remove('hidden');
+        message.textContent = status === 'all' ? 'No Assignments' : `No ${status} tasks`;
+    } else {
+        document.getElementById('message').classList.add('hidden');
+        filteredTasks.forEach((task, index) => {
+            renderTask(task.taskText, task.dueDate, task.dueTime, task.status, index);
+        });
+    }
+    
+    showDetailTask();
+    markComplete();
+    deleteFromExpired();
+};
+
+// Toggle detail task
 const showDetailTask = () => {
     document.querySelectorAll('.task').forEach(task => {
         task.addEventListener('click', (event) => {
-            if (activeMode === 'edit' || activeMode === 'delete') {
-                return;
-            }
+            if (activeMode === 'edit' || activeMode === 'delete') return;
             event.currentTarget.classList.toggle('open');
         });
     });
 };
 
-// fungsi untuk tombol 'Complete' task
+// Tandai task sebagai selesai
 const markComplete = () => {
     document.querySelectorAll('.mark-complete').forEach(button => {
         button.addEventListener('click', (event) => {
             event.stopPropagation();
-            const task = button.parentElement.parentElement;
-            const indexTask = task.getAttribute('data-index');
-
-            dataBase[indexTask].status = 'complete';
+            const task = button.closest('.task');
+            const index = task.dataset.index;
+            
+            dataBase[index].status = 'complete';
             localStorage.setItem('todoList', JSON.stringify(dataBase));
-            location.reload();
+            applyStatusFilter(document.getElementById('status-filter').value);
         });
     });
 };
 
-// fungsi untuk menghapus task dari tombol 'Delete' di task
+// Handler hapus task
+const handleDeleteTask = (index) => {
+    dataBase.splice(index, 1);
+    localStorage.setItem('todoList', JSON.stringify(dataBase));
+    applyStatusFilter(document.getElementById('status-filter').value);
+};
+
+// Hapus task yang sudah expired
 const deleteFromExpired = () => {
     document.querySelectorAll('.expired-task-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             event.stopPropagation();
-            const task = button.parentElement.parentElement;
-            const indexTask = task.getAttribute('data-index');
-
-            const newData = dataBase.filter((item, index) => index !== parseInt(indexTask));
-            localStorage.setItem('todoList', JSON.stringify(newData));
-            location.reload();
+            const task = button.closest('.task');
+            handleDeleteTask(task.dataset.index);
         });
     });
 };
 
-// fungsi uatama untuk modal view
+// Fungsi utama tambah/edit task
 const task = (taskText, dueDate, dueTime) => {
     const dueDateTime = new Date(`${dueDate}T${dueTime}`);
     const currentDateTime = new Date();
     
-    if (taskText.trim() === ''  && (dueDate === '' || dueTime === '')) {
+    // Reset semua pesan error
+    document.querySelector('.modal-error').classList.add('hidden');
+    document.querySelectorAll('.error-item').forEach(element => element.classList.add('hidden'));
+
+    // Validasi
+    if (taskText.trim() === '' && (dueDate === '' || dueTime === '')) {
         document.querySelector('.modal-error').classList.remove('hidden');
         document.getElementById('error-task-input').classList.remove('hidden');
         document.getElementById('error-duedatetime-input').classList.remove('hidden');
         document.getElementById('error-task-duedatetime').classList.remove('hidden');
         return;
-    }
-    else if (taskText.trim() === '') {
+    } else if (taskText.trim() === '') {
         document.querySelector('.modal-error').classList.remove('hidden');
-        document.getElementById('error-duedatetime-input').classList.add('hidden');
-        document.getElementById('error-task-duedatetime').classList.add('hidden');
         document.getElementById('error-task-input').classList.remove('hidden');
         return;
-    }else if (dueDate === '' || dueTime === '') {
+    } else if (dueDate === '' || dueTime === '') {
         document.querySelector('.modal-error').classList.remove('hidden');
-        document.getElementById('error-task-input').classList.add('hidden');
-        document.getElementById('error-task-duedatetime').classList.add('hidden');
         document.getElementById('error-duedatetime-input').classList.remove('hidden');
         return;
-    }else if (dueDateTime < currentDateTime) {
+    } else if (dueDateTime < currentDateTime) {
         document.querySelector('.modal-error').classList.remove('hidden');
-        document.getElementById('error-duedatetime-input').classList.add('hidden');
-        document.getElementById('error-task-input').classList.add('hidden');
         document.getElementById('error-task-duedatetime').classList.remove('hidden');
         return;
     }
-    
-    if(typeActions.typeActions == 'edit'){
+
+    if (typeActions.typeActions === 'edit') {
         const editTask = JSON.parse(localStorage.getItem('taskEdit'));
-        dataBase[editTask.indexTask].taskText = taskText;
-        dataBase[editTask.indexTask].dueDate = dueDate;
-        dataBase[editTask.indexTask].dueTime = dueTime;
-    }else{
-        const newData = {taskText, dueDate, dueTime, status: 'in progress'};
-        dataBase.push(newData);
+        dataBase[editTask.indexTask] = { 
+            taskText, 
+            dueDate, 
+            dueTime, 
+            status: editTask.status 
+        };
+    } else {
+        dataBase.push({ 
+            taskText, 
+            dueDate, 
+            dueTime, 
+            status: 'in progress' 
+        });
     }
-    
+
     localStorage.setItem('todoList', JSON.stringify(dataBase));
     document.getElementById('modal-container').classList.add('hidden');
-    location.reload();
+    clearModalInputs();
+    activeMode = null;
+    typeActions.typeActions = 'add';
+    localStorage.setItem('typeActions', JSON.stringify(typeActions));
+    applyStatusFilter(document.getElementById('status-filter').value);
 };
 
-// fungsi untuk edit task 
+// Mode edit task
 const editTask = () => {
     const message = document.getElementById('message');
+    const warningMsg = document.getElementById('warning-msg');
     
     if (activeMode === 'edit') {
         message.classList.add('hidden');
-        message.classList.remove('edit-task');
-        document.getElementById('warning-msg').classList.add('hidden');
+        message.classList.add('no-assignments')
+        message.textContent = 'No assignment'
+        warningMsg.classList.add('hidden');
         removeEditModeListeners();
         activeMode = null;
         return;
@@ -163,35 +215,40 @@ const editTask = () => {
     
     if (activeMode === 'delete') {
         message.classList.add('hidden');
-        message.classList.remove('remove-task');
+        message.className = 'no-assignments';
         removeDeleteModeListener();
     }
     
     activeMode = 'edit';
     message.classList.remove('hidden');
-    message.classList.add('edit-task');
-    message.textContent = 'click the task to edit';
+    message.className = 'edit-task';
+    message.textContent = 'Click the task to edit';
+    warningMsg.classList.add('hidden');
     
     removeEditModeListeners();
     
     document.querySelectorAll('.task').forEach(task => {
         const handler = (event) => {
             event.preventDefault();
-            if (task.getAttribute('data-status') === 'complete' || task.getAttribute('data-status') === 'expired') {
-                document.getElementById('warning-msg').classList.remove('hidden');
+            if (task.dataset.status === 'complete' || task.dataset.status === 'expired') {
+                warningMsg.classList.remove('hidden');
                 return;
             }
-            document.getElementById('warning-msg').classList.add('hidden');
-            const indexTask = task.getAttribute('data-index');
-            const taskText = task.querySelector('.task-text').getAttribute('data-taskText');
-            const dueDate = task.querySelector('.due-date').getAttribute('data-dueDate');
-            const dueTime = task.querySelector('.due-time').getAttribute('data-dueTime');
-            localStorage.setItem('taskEdit', JSON.stringify({taskText, dueDate, dueTime, indexTask}));
-
+            
+            warningMsg.classList.add('hidden');
+            const taskData = {
+                taskText: task.querySelector('.task-text').dataset.tasktext,
+                dueDate: task.querySelector('[data-dueDate]').dataset.duedate,
+                dueTime: task.querySelector('[data-dueTime]').dataset.duetime,
+                indexTask: task.dataset.index,
+                status: task.dataset.status
+            };
+            
+            localStorage.setItem('taskEdit', JSON.stringify(taskData));
             document.getElementById('modal-container').classList.remove('hidden');
-            document.getElementById('task').value = taskText;
-            document.getElementById('due-date').value = dueDate;
-            document.getElementById('due-time').value = dueTime;
+            document.getElementById('task').value = taskData.taskText;
+            document.getElementById('due-date').value = taskData.dueDate;
+            document.getElementById('due-time').value = taskData.dueTime;
             document.getElementById('submit-btn').textContent = 'Edit Task';
         };
         
@@ -203,28 +260,30 @@ const editTask = () => {
     localStorage.setItem('typeActions', JSON.stringify(typeActions));
 };
 
-// fungsi untuk hapus task dari tombol delete
+// Mode hapus task
 const deleteTask = () => {
     const message = document.getElementById('message');
     
     if (activeMode === 'delete') {
         message.classList.add('hidden');
-        message.classList.remove('remove-task');
+        message.classList.add('no-assignments')
+        message.textContent = 'No assignment'
         removeDeleteModeListener();
         activeMode = null;
         return;
     }
     
     if (activeMode === 'edit') {
+        document.getElementById('warning-msg').classList.add('hidden');
         message.classList.add('hidden');
-        message.classList.remove('edit-task');
+        message.className = 'no-assignments';
         removeEditModeListeners();
     }
     
     activeMode = 'delete';
     message.classList.remove('hidden');
-    message.classList.add('remove-task');
-    message.textContent = 'click the task to delete';
+    message.className = 'remove-task';
+    message.textContent = 'Click the task to delete';
     
     removeDeleteModeListener();
     
@@ -232,78 +291,104 @@ const deleteTask = () => {
         const handler = (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const indexTask = task.getAttribute('data-index');
-            const newData = dataBase.filter((_, index) => index !== parseInt(indexTask));
-            localStorage.setItem('todoList', JSON.stringify(newData));
-            location.reload();
+            handleDeleteTask(task.dataset.index);
+
+            if (dataBase.length > 0) {
+                deleteTask();
+            } else {
+                const message = document.getElementById('message');
+                message.classList.remove('hidden');
+                message.className = 'no-assignments';
+                message.textContent = 'No Assignments';
+                activeMode = null;
+            }
         };
 
         task.addEventListener('click', handler);
-        deleteModeListeners.push({task, handler});
+        deleteModeListeners.push({ task, handler });
     });
 };
 
-// fungsi untuk menambah task baru
+// Event Listener tombol tambah
 document.getElementById('add-todo').addEventListener('click', (event) => {
     event.preventDefault();
-
-    if (activeMode === 'edit') {
+    if (activeMode === 'edit' || activeMode === 'delete') {
         document.getElementById('message').classList.add('hidden');
-        document.getElementById('message').classList.remove('edit-task');
+        document.getElementById('message').className = 'no-assignments';
+        document.getElementById('warning-msg').classList.add('hidden');
         removeEditModeListeners();
-    } else if (activeMode === 'delete') {
-        document.getElementById('message').classList.add('hidden');
-        document.getElementById('message').classList.remove('remove-task');
         removeDeleteModeListener();
     }
-    
+
+    message.className = 'no-assignments';
+    message.textContent = 'No Assignments';
+    message.classList.add('hidden');
+
     activeMode = null;
-    
     typeActions.typeActions = 'add';
     localStorage.setItem('typeActions', JSON.stringify(typeActions));
     document.getElementById('modal-container').classList.remove('hidden');
+    clearModalInputs();
     document.getElementById('submit-btn').textContent = 'Submit';
 });
 
-document.getElementById('cancel-btn').addEventListener('click', (event) => {
-    event.preventDefault();
-    document.getElementById('modal-container').classList.add('hidden');
+// Event Listener filter status
+document.getElementById('status-filter').addEventListener('change', (e) => {
+    applyStatusFilter(e.target.value);
 });
 
+// Event Listener tombol batal pada modal
+document.getElementById('cancel-btn').addEventListener('click', (event) => {
+    event.preventDefault();
+
+    if(dataBase.length === 0){
+        message.classList.remove('hidden');
+        message.className = 'no-assignments';
+        message.textContent = 'No Assignments';
+    }
+
+    document.getElementById('modal-container').classList.add('hidden');
+    clearModalInputs();
+});
+
+// Event Listener tombol submit pada modal
 document.getElementById('submit-btn').addEventListener('click', (event) => {
     event.preventDefault();
     const taskText = document.getElementById('task').value;
     const dueDate = document.getElementById('due-date').value;
     const dueTime = document.getElementById('due-time').value;
-    
     task(taskText, dueDate, dueTime);
 });
 
-document.getElementById('edit-todo').addEventListener('click', (event) => {
-    event.preventDefault();
+// Event Listener tombol edit
+document.getElementById('edit-todo').addEventListener('click', () => {
+    if (dataBase.length === 0) {
+        const message = document.getElementById('message');
+        message.classList.remove('hidden');
+        message.className = 'no-assignments';
+        message.textContent = 'No Assignments';
+        return;
+    }
     editTask();
 });
 
-document.getElementById('remove-todo').addEventListener('click', (event) => {
-    event.preventDefault();
+// Event Listener tombol hapus
+document.getElementById('remove-todo').addEventListener('click', () => {
+    if (dataBase.length === 0) {
+        const message = document.getElementById('message');
+        message.classList.remove('hidden');
+        message.className = 'no-assignments';
+        message.textContent = 'No Assignments';
+        return;
+    }
     deleteTask();
 });
 
 // Inisialisasi awal
-const todoList = document.getElementById('todo-list');
-const noAssignmentMsg = document.getElementById('message');
-
 if (dataBase.length > 0) {
-    dataBase.forEach((item, index) => {
-        renderTask(item.taskText, item.dueDate, item.dueTime, item.status, index);
-    });
-    noAssignmentMsg.classList.add('hidden');
+    applyStatusFilter('all');
 } else {
-    noAssignmentMsg.classList.remove('hidden');
-    noAssignmentMsg.classList.add('no-assignments');
-    noAssignmentMsg.textContent = 'No Assignments';
+    document.getElementById('message').classList.remove('hidden');
+    document.getElementById('message').className = 'no-assignments';
+    document.getElementById('message').textContent = 'No Assignments';
 }
-
-showDetailTask();
-markComplete();
-deleteFromExpired();

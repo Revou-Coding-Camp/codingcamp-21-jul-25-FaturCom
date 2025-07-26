@@ -25,7 +25,7 @@
                      <select id="status-filter">
                          <option value="all">All</option>
                          <option value="in progress">In Progress</option>
-                         <option value="completed">Compelted</option>
+                         <option value="complete">Completed</option>
                          <option value="expired">Expired</option>
                      </select>
                   </div>
@@ -68,11 +68,14 @@
 
         <!-- bagian daftar todo -->
         <section>
-            <div id="todo-list" class="todo-list">
+            <div class="todo-list" id="todo-message">
                 <h2>Task List</h2>
                 <!-- pesan -->
                 <p class="no-assignments hidden" id="message">No Assignments</p>
                 <p class="warning-msg hidden" id="warning-msg">This task cannot be edited because it is already completed or expired.</p>
+            </div>
+            <div id="todo-list" class="todo-list">
+                
             </div>
         </section>
     </main>
