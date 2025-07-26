@@ -246,6 +246,10 @@ const editTask = () => {
             
             localStorage.setItem('taskEdit', JSON.stringify(taskData));
             document.getElementById('modal-container').classList.remove('hidden');
+
+            document.querySelector('.modal-error').classList.add('hidden');
+            document.querySelectorAll('.error-item').forEach(el => el.classList.add('hidden'));
+
             document.getElementById('task').value = taskData.taskText;
             document.getElementById('due-date').value = taskData.dueDate;
             document.getElementById('due-time').value = taskData.dueTime;
@@ -319,6 +323,9 @@ document.getElementById('add-todo').addEventListener('click', (event) => {
         removeEditModeListeners();
         removeDeleteModeListener();
     }
+
+    document.querySelector('.modal-error').classList.add('hidden');
+    document.querySelectorAll('.error-item').forEach(el => el.classList.add('hidden'));
 
     message.className = 'no-assignments';
     message.textContent = 'No Assignments';
